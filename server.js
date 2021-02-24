@@ -241,4 +241,42 @@ let table = new Table({
   initPrompt();
 
 }
+
+// Function to render Departments and Roles tables
+function renderTable2(err, res, headerTitle, name, answer) {
+    clear();
+    if (err) throw err;
+
+    var table = new Table({
+        chars: {
+            'top': '═', 'top-mid': '╤', 'top-left': '╔', 'top-right': '╗'
+            , 'bottom': '═', 'bottom-mid': '╧', 'bottom-left': '╚', 'bottom-right': '╝'
+            , 'left': '║', 'left-mid': '╟', 'mid': '─', 'mid-mid': '┼'
+            , 'right': '║', 'right-mid': '╢', 'middle': '│'
+        }
+    });
+
+    let tableHeaders = [chalk.magenta.bold(headerTitle)];
+    table.push(tableHeaders);
+
+    if (name === "name") {
+        res.forEach((value, i) => {let finalName = res[i].name; table.push([finalName])});
+    }
+
+    else if (name === "title") {
+        res.forEach((value, i) => {let finalName = res[i].title; table.push([finalName])});
+    }
+
+    else if (name === "cost") {
+        table.shift();
+        let tableHeaders2 = [chalk.magenta.bold(headerTitle), chalk.magenta.bold("Total Labor Cost")];
+        table.push(tableHeaders2);
+        table.push([answer.deptName, res[0].sum_salary]);
+    }
+
+    let finalTable = table.toString();
+    console.log(finalTable);
+
+    initPrompt();
+}
             

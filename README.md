@@ -4,7 +4,8 @@
 1. [Project Description](#description)
 2. [Usage](#usage)
 3. [Dependencies](#dependencies)
-4. [Github](#gitcontact)
+4. [References] (#references)
+5. [Github](#gitcontact)
 
 ## Project Description <a name="description"></a>
 This CLI app is a Content Management System interface designed for easily accessing data about employees from a database.
@@ -23,6 +24,10 @@ This application uses the following npm packages:
 - cli-table
 - colors 
 - joi
+
+## References <a name="references"></a>
+[figlet tutorial](https://www.youtube.com/watch?v=7gKd0MYsSnE) 
+[helpful node/mysql article](https://thefinleycode.com/node-js-server-side-javascript-and-mysql/)
 
 ## Github <a name="gitcontact"></a>
 Github username: [sleepytomatoes](https://github.com/sleepytomatoes) 
