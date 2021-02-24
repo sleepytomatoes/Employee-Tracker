@@ -1,5 +1,5 @@
-DROP DATABASE IF EXISTS employeeTracker_db
-CREATE DATABASE employeeTracker_db
+DROP DATABASE IF EXISTS employeeTracker_db;
+CREATE DATABASE employeeTracker_db;
 
 USE employeeTracker_db;
 
@@ -51,13 +51,13 @@ CREATE TABLE department (
 );
 
 INSERT INTO department (name)
-VALUES ("Sales")
+VALUES ("Sales");
 INSERT INTO department (name)
-VALUES ("Engineering")
+VALUES ("Engineering");
 INSERT INTO department (name)
-VALUES ("Legal")
+VALUES ("Legal");
 INSERT INTO department (name)
-VALUES ("Finance")
+VALUES ("Finance");
 
 CREATE TABLE role (
   id INT NOT NULL AUTO_INCREMENT,
@@ -68,18 +68,18 @@ CREATE TABLE role (
 );
 
 INSERT INTO role (title, salary, department_id)
-VALUES ("Sales Associate", 60000, 1)
+VALUES ("Sales Associate", 60000, 1);
 INSERT INTO role (title, salary, department_id)
-VALUES ("Sales Lead", 70000, 1)
+VALUES ("Sales Lead", 70000, 1);
 INSERT INTO role (title, salary, department_id)
-VALUES ("Software Engineer", 65000, 2)
+VALUES ("Software Engineer", 65000, 2);
 INSERT INTO role (title, salary, department_id)
-VALUES ("Lead Engineer", 100000, 2)
+VALUES ("Lead Engineer", 100000, 2);
 INSERT INTO role (title, salary, department_id)
-VALUES ("Accountant", 65000, 4)
+VALUES ("Accountant", 65000, 4);
 INSERT INTO role (title, salary, department_id)
-VALUES ("Account Manager", 80000, 4)
+VALUES ("Account Manager", 80000, 4);
 INSERT INTO role (title, salary, department_id)
-VALUES ("Junior Legal", 60000, 3)
+VALUES ("Junior Legal", 60000, 3);
 INSERT INTO role (title, salary, department_id)
-VALUES ("Legal Team Lead", 100000, 3)
+VALUES ("Legal Team Lead", 100000, 3);

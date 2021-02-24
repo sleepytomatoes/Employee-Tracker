@@ -5,6 +5,7 @@ const { clear } = require('console'); // clears console for a cleaner user exper
 var colors = require('colors/safe'); // adds color to tables
 var Table = require('cli-table'); // formats tables in a visually pleasing way
 const validate = require('./lib/validate'); //validating functions
+const headerGraphic = require('./lib/headerGraphic'); //opening graphics
 
 // connection to mySQL established
 const connection = mysql.createConnection({
@@ -16,8 +17,9 @@ const connection = mysql.createConnection({
 });
 
 // once the connection is made, the first prompt function runs
-connection.connect((err) => {
+connection.connect(function (err) {
     if (err) throw err;
+    headerGraphic()
     initPrompt();
   });
 
@@ -91,7 +93,8 @@ const initPrompt = () => {
 
   function displayAll() {
       connection.query("SELECT e.id, e.first_name, e.last_name, r.title, r.salary, d.name, m.first_name AS ? , m.last_name AS ? FROM employee e JOIN role r ON e.role_id = r.id JOIN department d ON r.department_id = d.id LEFT JOIN employee m on e.manager_id = m.id;", ["manager_first_name", "manager_last_name"], function (err, res) {
-          renderTable(err, res);
+        renderTable(err, res);
+          
   })
 }
 
@@ -211,9 +214,8 @@ function renderTable(err, res) {
     if (err) throw err;
     clear();
 
-    console.log(res);
 // Render the table using cli-table for a more fancy user experience
-var table = new Table({
+let table = new Table({
     chars: { 'top': '═' , 'top-mid': '╤' , 'top-left': '╔' , 'top-right': '╗'
            , 'bottom': '═' , 'bottom-mid': '╧' , 'bottom-left': '╚' , 'bottom-right': '╝'
            , 'left': '║' , 'left-mid': '╟' , 'mid': '─' , 'mid-mid': '┼'
@@ -223,7 +225,7 @@ var table = new Table({
   let tableHeaders = [colors.brightGreen.bold("ID"), colors.brightGreen.bold("First Name"), colors.brightGreen.bold("Last Name"), colors.brightGreen.bold("Title"), colors.brightGreen.bold("Department"), colors.brightGreen.bold("Salary"), colors.brightGreen.bold("Manager")];
   table.push(tableHeaders);
 
-  res.forEach(() => {
+  res.forEach((value, i) => {
   table.push([
     res[i].id, 
     res[i].first_name, 
