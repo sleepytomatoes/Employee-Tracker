@@ -1,8 +1,10 @@
 // Dependencies
-const mysql = require('mysql');
-const inquirer = require('inquirer');
-const { clear } = require('console');
-const chalk = require('chalk');
+const mysql = require('mysql'); // database
+const inquirer = require('inquirer'); // prompts user
+const { clear } = require('console'); // clears console for a cleaner user experience
+var colors = require('colors/safe'); // adds color to tables
+var Table = require('cli-table'); // formats tables in a visually pleasing way
+const validate = require('./lib/validate'); //validating functions
 
 // connection to mySQL established
 const connection = mysql.createConnection({
@@ -88,7 +90,7 @@ const initPrompt = () => {
   };
 
   function displayAll() {
-      connection.query("SELECT e.id, e.first_name, e.last_name, title, salary, name, m.first_name, AS ? , m.last_name, AS ? FROM employee e JOIN role r ON e.role_id = r.id JOIN department d ON r.department_id = d.id LEFT JOIN employee m on e.manager_id = m.id;", ["manager_first_name", "manager_last_name"], function (err, res) {
+      connection.query("SELECT e.id, e.first_name, e.last_name, r.title, r.salary, d.name, m.first_name AS ? , m.last_name AS ? FROM employee e JOIN role r ON e.role_id = r.id JOIN department d ON r.department_id = d.id LEFT JOIN employee m on e.manager_id = m.id;", ["manager_first_name", "manager_last_name"], function (err, res) {
           renderTable(err, res);
   })
 }
@@ -118,7 +120,7 @@ function employeeByMgr() {
 
     clear();
 
-    connection.query("SELECT m.first_name, AS ? , m.last_name AS ? , m.id FROM employee e JOIN role r ON e.role_id = r.id JOIN department d ON r.department_id = d.id LEFT JOIN employee m on e.manager_id = m.id GROUP BY m.id;", ["manager_first_name", "manager_last_name"], function (err, res) {
+    connection.query("SELECT m.first_name AS ? , m.last_name AS ? , m.id FROM employee e JOIN role r ON e.role_id = r.id JOIN department d ON r.department_id = d.id LEFT JOIN employee m on e.manager_id = m.id GROUP BY m.id;", ["manager_first_name", "manager_last_name"], function (err, res) {
         let managerArr = nameAndIdArr(err, res, "manager");
 
         inquirer
@@ -178,13 +180,13 @@ function addEmployee() {
                .then(function(answer) {
                    roleArr[1].forEach((value, i) => {if (answer.empTitle === roleArr[1][i]) {roleId = roleArr[0][i];}});
                
-                   managerArrays[1].forEach((value, i) => {if (answer.empManager === managerArrays[1][i]) {newManagerId = managerArrays[0][i];}});
+                   managerArrays[1].forEach((value, i) => {if (answer.empManager === managerArrays[1][i]) {newMgrId = managerArrays[0][i];}});
 
-                   if (newManagerId === "NULL") {
+                   if (newMgrId === "NULL") {
                     connection.query("INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, NULL)", [answer.empName, answer.empLastName, roleId], function (err, res) {
                         if (err) throw err;
                         clear();
-                        let success = chalk.greenBright(`You've succesfully added ${answer.empName} ${answer.empLastName}.`)
+                        let success = colors.brightGreen(`You've succesfully added ${answer.empName} ${answer.empLastName}.`)
                         console.log(success)
 
                         initPrompt();
@@ -194,7 +196,7 @@ function addEmployee() {
                     connection.query("INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?);", [answer.empName, answer.empLastName, roleId, newManagerId], function (err, res) {
                         if (err) throw err;
                         clear();
-                        let success = chalk.greenBright(`You've succesfully added ${answer.empName} ${answer.empLastName}.`)
+                        let success = colors.brightGreen(`You've succesfully added ${answer.empName} ${answer.empLastName}.`)
                         console.log(success)
 
                         initPrompt();
@@ -205,5 +207,36 @@ function addEmployee() {
 })
 }
 
+function renderTable(err, res) {
+    if (err) throw err;
+    clear();
 
+    console.log(res);
+// Render the table using cli-table for a more fancy user experience
+var table = new Table({
+    chars: { 'top': '═' , 'top-mid': '╤' , 'top-left': '╔' , 'top-right': '╗'
+           , 'bottom': '═' , 'bottom-mid': '╧' , 'bottom-left': '╚' , 'bottom-right': '╝'
+           , 'left': '║' , 'left-mid': '╟' , 'mid': '─' , 'mid-mid': '┼'
+           , 'right': '║' , 'right-mid': '╢' , 'middle': '│' }
+  });
+  
+  let tableHeaders = [colors.brightGreen.bold("ID"), colors.brightGreen.bold("First Name"), colors.brightGreen.bold("Last Name"), colors.brightGreen.bold("Title"), colors.brightGreen.bold("Department"), colors.brightGreen.bold("Salary"), colors.brightGreen.bold("Manager")];
+  table.push(tableHeaders);
+
+  res.forEach(() => {
+  table.push([
+    res[i].id, 
+    res[i].first_name, 
+    res[i].last_name, 
+    res[i].title, 
+    res[i].name, 
+    res[i].salary, 
+    res[i].manager_first_name + " " + res[i].manager_last_name])});
+
+  let finalTable = table.toString();
+  console.log(finalTable);
+
+  initPrompt();
+
+}
             

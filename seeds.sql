@@ -12,41 +12,42 @@ CREATE TABLE employee (
   PRIMARY KEY (id)
 );
 
+INSERT INTO employee (first_name, last_name, role_id)
+VALUES ("Mary", "Shelley", 3);
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ("Mary", "Shelley", 3, 2);
+VALUES ("Kurt", "Vonnegut", 2, 5);
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ("Kurt", "Vonnegut", 2, 4);
+VALUES ("Agatha", "Christy", 1, 5);
+INSERT INTO employee (first_name, last_name, role_id)
+VALUES ("Ivan", "Turgenev", 5);
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ("Agatha", "Christy", 1, 3);
-INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ("Ivan", "Turgenev", 5, 3);
-INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ("Ernest", "Hemingway", 4, 1);
+VALUES ("Ernest", "Hemingway", 4, 2);
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
 VALUES ("Fyodor", "Dostoyevsky", 6, 2);
+INSERT INTO employee (first_name, last_name, role_id)
+VALUES ("Alice", "Walker", 7);
+INSERT INTO employee (first_name, last_name, role_id)
+VALUES ("William", "Faulkner", 8);
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ("Alice", "Walker", 7, 4);
+VALUES ("Toni", "Morrison", 4, 6);
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ("William", "Faulkner", 8, 2);
+VALUES ("Osamu", "Dazai", 6, 6);
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ("Toni", "Morrison", 4, 3);
+VALUES ("Albert", "Camus", 5, 6);
+INSERT INTO employee (first_name, last_name, role_id)
+VALUES ("Virginia", "Woolf", 7);
+INSERT INTO employee (first_name, last_name, role_id)
+VALUES ("Merce", "Rodoreda", 2);
+INSERT INTO employee (first_name, last_name, role_id)
+VALUES ("Kazuo", "Ishiguro", 1);
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ("Osamu", "Dazai", 6, 1);
-INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ("Albert", "Camus", 5, 1);
-INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ("Virginia", "Woolf", 7, 4);
-INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ("Merce", "Rodoreda", 2, 3);
-INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ("Kazuo", "Ishiguro", 1, 2);
-INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ("Franz", "Kafka", 5, 4);
+VALUES ("Franz", "Kafka", 5, 7);
 
 
 CREATE TABLE department (
     id INT NOT NULL AUTO_INCREMENT,
-    name VARCHAR(30) NOT NULL
+    name VARCHAR(30) NOT NULL,
+    PRIMARY KEY(id)
 );
 
 INSERT INTO department (name)
