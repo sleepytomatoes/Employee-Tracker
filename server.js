@@ -209,6 +209,65 @@ function addEmployee() {
     })
 })
 }
+function updateRole() {
+    clear();
+    connection.query("SELECT first_name, last_name, id FROM employee;", function (err, res) {
+
+        let empArrs = nameAndIdArrs(err, res, "employee");
+
+        inquirer
+            .prompt({
+                name: "findThisValue",
+                type: "list",
+                message: "Select employee to update:",
+                choices: empArrs[1]
+            })
+            .then(function (answer) {
+                let selectedEmpName = answer.findThisValue;
+                updateThisId = findId(answer, empArrays);
+
+                connection.query("SELECT title, id FROM role;", function (err, res) {
+
+                   let roleArrs = nameAndIdArrays(err, res, "role");
+
+                    inquirer
+                        .prompt({
+                            name: "findThisValue",
+                            type: "list",
+                            message: "Choose a role",
+                            choices: roleArrs[1]
+
+                        })
+
+                        .then(function (answer) {
+                            roleId = findId(answer, roleArrs);
+
+                            connection.query("UPDATE employee set role_id = ? where id = ?;", [roleId, updateThisId], function (err, res) {
+                                if (err) throw err;
+                                clear();
+                                let success = colors.brightGreen(`You've succesfully updated ${selectedEmpName}'s role to ${answer.findThisValue}.`)
+                                console.log(success)
+
+                                initPrompt();
+                            })
+                        })
+                })
+            })
+    })
+}
+
+// Renders all departments into a table
+function viewDepartments() {
+    connection.query("SELECT name FROM department;", function (err, res) {
+        renderTable2(err, res, "Department Name", "name");
+    })
+}
+// Renders all roles into a table
+function viewRoles() {
+    connection.query("SELECT title FROM role;", function (err, res) {
+        renderTable2(err, res, "Role Title", "title");
+    })
+}
 
 function renderTable(err, res) {
     if (err) throw err;
@@ -256,22 +315,15 @@ function renderTable2(err, res, headerTitle, name, answer) {
         }
     });
 
-    let tableHeaders = [chalk.magenta.bold(headerTitle)];
+    let tableHeaders = [colors.brightGreen.bold(headerTitle)];
     table.push(tableHeaders);
 
     if (name === "name") {
-        res.forEach((value, i) => {let finalName = res[i].name; table.push([finalName])});
+        res.forEach((value, i) => {let outputName = res[i].name; table.push([outputName])});
     }
 
     else if (name === "title") {
-        res.forEach((value, i) => {let finalName = res[i].title; table.push([finalName])});
-    }
-
-    else if (name === "cost") {
-        table.shift();
-        let tableHeaders2 = [chalk.magenta.bold(headerTitle), chalk.magenta.bold("Total Labor Cost")];
-        table.push(tableHeaders2);
-        table.push([answer.deptName, res[0].sum_salary]);
+        res.forEach((value, i) => {let outputName = res[i].title; table.push([outputName])});
     }
 
     let finalTable = table.toString();
@@ -280,3 +332,33 @@ function renderTable2(err, res, headerTitle, name, answer) {
     initPrompt();
 }
             
+// nameAndIdArr declares two empty arrays, one for names/titles and the other for Id's. The user selects from names, and the queries find the corresponding Ids.
+function nameAndIdArr(err, res, nameType, needEmpty) {
+    if (err) throw err;
+    let empIdArr = [];
+    let empNamesArr = [];
+
+    if (needEmpty === "yes") {
+        empIdArr.push("NULL")
+        empNamesArr.push("none");
+        res.forEach((value, i) => {empNamesArr.push(res[i].first_name + " " + res[i].last_name); empIdArr.push(res[i].id);});
+        }
+    if (nameType === "manager") {
+        res.forEach((value, i) => {if (res[i].manager_first_name != null) 
+            {empNamesArr.push(res[i].manager_first_name + " " + res[i].manager_last_name); empIdArr.push(res[i].id);}});
+    }
+    if (nameType === "department") {
+        res.forEach((value, i) => {empNamesArr.push(res[i].name); empIdArr.push(res[i].id);});
+    }
+    if (nameType === "role") {
+        res.forEach((value, i) => {empNamesArr.push(res[i].title); empIdArr.push(res[i].id);});
+    }
+    if (nameType === "employee") {
+        res.forEach((value, i) => {empNamesArr.push(res[i].first_name + " " + res[i].last_name); empIdArr.push(res[i].id);});
+    }
+    return empArrays = [empIdArr, empNamesArr];
+}
+// Using the Name and ID arrays, findId compares the user-response to the Name array and returns the ID located in the same position in the ID array.
+let findId = (answer, nameArrays) => {nameArrays[1].forEach((value, i) => {if (answer.findMgrName === value) {useThisId = nameArrays[0][i];}});
+      return useThisId;   
+}
