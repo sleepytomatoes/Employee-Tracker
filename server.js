@@ -4,7 +4,6 @@ const inquirer = require('inquirer'); // prompts user
 const { clear } = require('console'); // clears console for a cleaner user experience
 var colors = require('colors/safe'); // adds color to tables
 var Table = require('cli-table'); // formats tables in a visually pleasing way
-const validate = require('./lib/validate'); //validating functions
 const headerGraphic = require('./lib/headerGraphic'); //opening graphics
 
 // connection to mySQL established
@@ -128,13 +127,13 @@ function employeeByMgr() {
 
         inquirer
             .prompt({
-                name: "findMgrName",
+                name: "findThisValue",
                 type: "list",
                 message: "Choose a Manager",
                 choices: managerArr[1]
             })
             .then(function (answer) {
-                connection.query("SELECT e.id, e.first_name, e.last_name, title, salary, name, m.first_name AS ? , m.last_name AS ? FROM employee e JOIN role r ON e.role_id = r.id JOIN department d ON r.department_id = d.id LEFT JOIN employee m on e.manager_id = m.id where m.id = ?;", ["manager_first_name", "manager_last_name", findId(answer, managerArrays)], function (err, res) {
+                connection.query("SELECT e.id, e.first_name, e.last_name, title, salary, name, m.first_name AS ? , m.last_name AS ? FROM employee e JOIN role r ON e.role_id = r.id JOIN department d ON r.department_id = d.id LEFT JOIN employee m on e.manager_id = m.id where m.id = ?;", ["manager_first_name", "manager_last_name", findId(answer, managerArr)], function (err, res) {
                     renderTable(err, res);
                 })
             })
@@ -159,14 +158,12 @@ function addEmployee() {
                 .prompt([{
                     name: "empName",
                     type: "text",
-                    message: "Enter employee's first name:",
-                    validate: validate.validateString
+                    message: "Enter employee's first name:"
                 },
                {
                    name: "empLastName",
                    type: "text",
-                   message: "Enter employee's last name:",
-                   validate: validate.validateString
+                   message: "Enter employee's last name:"
                },
                {
                    name: "empTitle",
@@ -183,7 +180,7 @@ function addEmployee() {
                .then(function(answer) {
                    roleArr[1].forEach((value, i) => {if (answer.empTitle === roleArr[1][i]) {roleId = roleArr[0][i];}});
                
-                   managerArrays[1].forEach((value, i) => {if (answer.empManager === managerArrays[1][i]) {newMgrId = managerArrays[0][i];}});
+                   managerArr[1].forEach((value, i) => {if (answer.empManager === managerArr[1][i]) {newMgrId = managerArr[0][i];}});
 
                    if (newMgrId === "NULL") {
                     connection.query("INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, NULL)", [answer.empName, answer.empLastName, roleId], function (err, res) {
@@ -196,7 +193,7 @@ function addEmployee() {
                     })
                 }
                 else {
-                    connection.query("INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?);", [answer.empName, answer.empLastName, roleId, newManagerId], function (err, res) {
+                    connection.query("INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?);", [answer.empName, answer.empLastName, roleId, newMgrId], function (err, res) {
                         if (err) throw err;
                         clear();
                         let success = colors.brightGreen(`You've succesfully added ${answer.empName} ${answer.empLastName}.`)
@@ -209,11 +206,81 @@ function addEmployee() {
     })
 })
 }
+
+// Add a new role
+function addRole() {
+    clear();
+    connection.query("SELECT name, id FROM department;", function (err, res) {
+
+        let nameArrs = nameAndIdArr(err, res, "department")
+
+        inquirer
+            .prompt([{
+                name: "roleTitle",
+                type: "text",
+                message: "Enter Title for the new role:"
+            },
+            {
+                name: "roleSalary",
+                type: "input",
+                message: "Enter Salary for the new role:"
+            },
+            {
+                name: "findThisValue",
+                type: "list",
+                message: "Which department does this role belong to?",
+                choices: nameArrs[1]
+            },
+            ])
+            .then(function (answer) {
+               
+                connection.query("INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?);", [answer.roleTitle, answer.roleSalary, findId(answer, nameArrs)], function (err, res) {
+
+                    if (err) throw err;
+
+                    clear();
+                    let success = colors.brightGreen(`You've succesfully added ${answer.roleTitle}.`)
+                    console.log(success)
+
+                    initPrompt();
+                }) 
+            }) 
+    }) 
+}
+// Add a department
+function addDept() {
+    clear();
+
+    inquirer
+        .prompt({
+            name: "departmentName",
+            type: "text",
+            message: "Enter Department name:"
+        })
+        .then(function (answer) {
+            let thisDepartment = answer.departmentName;
+
+            connection.query("INSERT INTO department (name) VALUES (?);", [answer.departmentName], function (err, res) {
+
+                if (err) throw err;
+
+                clear();
+
+                let success = colors.brightGreen(`You've succesfully added ${thisDepartment}.`)
+                console.log(success)
+
+                initPrompt();
+            }) 
+        }) 
+
+}
+
+
 function updateRole() {
     clear();
     connection.query("SELECT first_name, last_name, id FROM employee;", function (err, res) {
 
-        let empArrs = nameAndIdArrs(err, res, "employee");
+        let empArrs = nameAndIdArr(err, res, "employee");
 
         inquirer
             .prompt({
@@ -224,11 +291,11 @@ function updateRole() {
             })
             .then(function (answer) {
                 let selectedEmpName = answer.findThisValue;
-                updateThisId = findId(answer, empArrays);
+                updateThisId = findId(answer, empArrs);
 
                 connection.query("SELECT title, id FROM role;", function (err, res) {
 
-                   let roleArrs = nameAndIdArrays(err, res, "role");
+                   let roleArrs = nameAndIdArr(err, res, "role");
 
                     inquirer
                         .prompt({
@@ -256,8 +323,10 @@ function updateRole() {
     })
 }
 
+
+
 // Renders all departments into a table
-function viewDepartments() {
+function viewDepts() {
     connection.query("SELECT name FROM department;", function (err, res) {
         renderTable2(err, res, "Department Name", "name");
     })
@@ -333,12 +402,12 @@ function renderTable2(err, res, headerTitle, name, answer) {
 }
             
 // nameAndIdArr declares two empty arrays, one for names/titles and the other for Id's. The user selects from names, and the queries find the corresponding Ids.
-function nameAndIdArr(err, res, nameType, needEmpty) {
+function nameAndIdArr(err, res, nameType, isEmpty) {
     if (err) throw err;
     let empIdArr = [];
     let empNamesArr = [];
 
-    if (needEmpty === "yes") {
+    if (isEmpty === "yes") {
         empIdArr.push("NULL")
         empNamesArr.push("none");
         res.forEach((value, i) => {empNamesArr.push(res[i].first_name + " " + res[i].last_name); empIdArr.push(res[i].id);});
@@ -356,9 +425,9 @@ function nameAndIdArr(err, res, nameType, needEmpty) {
     if (nameType === "employee") {
         res.forEach((value, i) => {empNamesArr.push(res[i].first_name + " " + res[i].last_name); empIdArr.push(res[i].id);});
     }
-    return empArrays = [empIdArr, empNamesArr];
+    return empArrs = [empIdArr, empNamesArr];
 }
 // Using the Name and ID arrays, findId compares the user-response to the Name array and returns the ID located in the same position in the ID array.
-let findId = (answer, nameArrays) => {nameArrays[1].forEach((value, i) => {if (answer.findMgrName === value) {useThisId = nameArrays[0][i];}});
+let findId = (answer, nameArrs) => {nameArrs[1].forEach((value, i) => {if (answer.findThisValue === value) {useThisId = nameArrs[0][i];}});
       return useThisId;   
 }

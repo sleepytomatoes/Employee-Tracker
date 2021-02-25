@@ -23,7 +23,6 @@ This application uses the following npm packages:
 - figlet 
 - cli-table
 - colors 
-- joi
 
 ## References <a name="references"></a>
 [figlet tutorial](https://www.youtube.com/watch?v=7gKd0MYsSnE) 
