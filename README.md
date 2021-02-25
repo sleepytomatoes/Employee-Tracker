@@ -4,7 +4,7 @@
 1. [Project Description](#description)
 2. [Usage](#usage)
 3. [Dependencies](#dependencies)
-4. [References] (#references)
+4. [References](#references)
 5. [Github](#gitcontact)
 
 ## Project Description <a name="description"></a>

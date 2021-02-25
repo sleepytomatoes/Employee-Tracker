@@ -22,6 +22,7 @@ connection.connect(function (err) {
     initPrompt();
   });
 
+// initPrompt uses a switch statement to direct the code to the proper functions based on user input
 const initPrompt = () => {
     inquirer
       .prompt({
@@ -90,6 +91,7 @@ const initPrompt = () => {
       });
   };
 
+  // displayAll combines data from the three tables in our database into one
   function displayAll() {
       connection.query("SELECT e.id, e.first_name, e.last_name, r.title, r.salary, d.name, m.first_name AS ? , m.last_name AS ? FROM employee e JOIN role r ON e.role_id = r.id JOIN department d ON r.department_id = d.id LEFT JOIN employee m on e.manager_id = m.id;", ["manager_first_name", "manager_last_name"], function (err, res) {
         renderTable(err, res);
@@ -97,6 +99,7 @@ const initPrompt = () => {
   })
 }
 
+// employeeByDept renders a table by a specific department
 function employeeByDept() {
 
     connection.query("SELECT name FROM department;", function (err, res) {
@@ -117,7 +120,7 @@ function employeeByDept() {
             })
     })
 } 
-
+// employeeByMgr renders a table by a specific manager
 function employeeByMgr() {
 
     clear();
@@ -140,7 +143,7 @@ function employeeByMgr() {
     
     })
 }
-
+// addEmployee adds an employee into our database 
 function addEmployee() {
     clear();
 
@@ -207,7 +210,7 @@ function addEmployee() {
 })
 }
 
-// Add a new role
+// addRole adds a new role to the role table in our database
 function addRole() {
     clear();
     connection.query("SELECT name, id FROM department;", function (err, res) {
@@ -247,7 +250,7 @@ function addRole() {
             }) 
     }) 
 }
-// Add a department
+// addDept adds a new department into the department table in our database
 function addDept() {
     clear();
 
@@ -275,7 +278,7 @@ function addDept() {
 
 }
 
-
+// updateRole takes an existing employee and changes their role before adding them back into the table
 function updateRole() {
     clear();
     connection.query("SELECT first_name, last_name, id FROM employee;", function (err, res) {
